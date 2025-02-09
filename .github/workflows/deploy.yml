@@ -1,0 +1,31 @@
+name: Deploy
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: pandoc/latex
+    steps:
+      - uses: actions/checkout@v2
+      - name: Create output
+        run: |
+          cd ../
+          mkdir output
+          cp -R $GITHUB_WORKSPACE/* ./output
+          cp -R ./output $GITHUB_WORKSPACE/
+      - name: Pushes to another repository
+        id: push_directory
+        uses: cpina/github-action-push-to-another-repository@main
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.ACCESS_TOKEN }}
+        with:
+          source-directory: "output"
+          destination-github-username: eeeasycode
+          destination-repository-name: gachon-books-fe
+          user-email: eeeasycode@gmail.com
+          commit-message: ${{ github.event.commits[0].message }}
+      - name: Get the cloned directory
+        run: echo $DESTINATION_CLONED_DIRECTORY
