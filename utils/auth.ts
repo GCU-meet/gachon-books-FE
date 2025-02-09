@@ -1,9 +1,10 @@
 import Cookies from "js-cookie"
 import { jwtDecode } from "jwt-decode"
+import { config } from "./config";
 
-const ACCESS_TOKEN_KEY = "access_token"
-const ID_TOKEN_KEY = "id_token"
-const REFRESH_TOKEN_KEY = "refresh_token"
+const ACCESS_TOKEN_KEY = config.accessTokenKey;
+const ID_TOKEN_KEY = config.idTokenKey;
+const REFRESH_TOKEN_KEY = config.refreshTokenKey;
 
 export function setTokens(accessToken: string, idToken: string, refreshToken: string) {
   Cookies.set(ACCESS_TOKEN_KEY, accessToken, { expires: 1 / 24, secure: true, sameSite: "strict" }) // 1 hour expiry
