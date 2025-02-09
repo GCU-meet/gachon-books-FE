@@ -1,66 +1,66 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Logo } from "@/components/logo"
-import Link from "next/link"
-import { Eye, EyeOff } from "lucide-react"
-import { signIn } from "@/utils/api"
-import { useUser } from "@/contexts/UserContext"
-import { isAuthenticated } from "@/utils/auth"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Logo } from "@/components/logo";
+import Link from "next/link";
+import { Eye, EyeOff } from "lucide-react";
+import { signIn } from "@/utils/api";
+import { useUser } from "@/contexts/UserContext";
+import { isAuthenticated } from "@/utils/auth";
 
 function isGachonEmail(email: string): boolean {
-  return email.endsWith("@gachon.ac.kr")
+  return email.endsWith("@gachon.ac.kr");
 }
 
 export default function LoginPage() {
-  const [error, setError] = useState<string>("")
-  const [showPassword, setShowPassword] = useState(false)
-  const [email, setEmail] = useState("")
-  const [emailError, setEmailError] = useState("")
-  const router = useRouter()
-  const { refreshUser } = useUser()
+  const [error, setError] = useState<string>("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const router = useRouter();
+  const { refreshUser } = useUser();
 
   useEffect(() => {
     const checkAuth = async () => {
       if (isAuthenticated()) {
-        router.push("/")
+        router.push("/");
       }
-    }
-    checkAuth()
-  }, [router])
+    };
+    checkAuth();
+  }, [router]);
 
   useEffect(() => {
     if (email && !isGachonEmail(email)) {
-      setEmailError("가천대학교 이메일(@gachon.ac.kr)만 사용 가능합니다.")
+      setEmailError("가천대학교 이메일(@gachon.ac.kr)만 사용 가능합니다.");
     } else {
-      setEmailError("")
+      setEmailError("");
     }
-  }, [email])
+  }, [email]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
+    e.preventDefault();
     if (emailError) {
-      return
+      return;
     }
 
-    const formData = new FormData(e.currentTarget)
+    const formData = new FormData(e.currentTarget);
     try {
-      const result = await signIn(formData)
+      const result = await signIn(formData);
 
       if (result.success) {
-        await refreshUser()
-        router.push("/")
+        await refreshUser();
+        router.push("/");
       } else {
-        setError("로그인에 실패했습니다.")
+        setError("로그인에 실패했습니다.");
       }
     } catch (err) {
-      setError("로그인 중 오류가 발생했습니다.")
+      setError("로그인 중 오류가 발생했습니다.");
     }
   }
 
@@ -90,8 +90,8 @@ export default function LoginPage() {
                   className={`border-2 ${emailError ? "border-red-500" : "focus:border-brand-500"}`}
                   value={email}
                   onChange={(e) => {
-                    setEmail(e.target.value)
-                    setError("")
+                    setEmail(e.target.value);
+                    setError("");
                   }}
                   required
                 />
@@ -161,6 +161,5 @@ export default function LoginPage() {
         </footer>
       </div>
     </div>
-  )
+  );
 }
-
