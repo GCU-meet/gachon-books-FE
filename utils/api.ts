@@ -126,7 +126,7 @@ export async function verifyEmail(email: string, code: string) {
     throw new Error(errorData.message || "이메일 인증 중 오류가 발생했습니다.");
   }
 
-  return response.json();
+  return { success: true };
 }
 
 export async function sendVerificationEmail(email: string) {

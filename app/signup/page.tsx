@@ -118,7 +118,6 @@ export default function SignUpPage() {
     try {
       const result = await verifyEmail(email, verificationCode);
 
-      console.log(result);
       if (result.success) {
         setIsEmailVerified(true);
         setShowVerificationInput(false);
