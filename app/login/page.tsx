@@ -1,29 +1,66 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Logo } from "@/components/logo";
-import Link from "next/link";
-import { signIn } from "../../actions/auth";
-import { Eye, EyeOff } from "lucide-react";
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Logo } from "@/components/logo"
+import Link from "next/link"
+import { Eye, EyeOff } from "lucide-react"
+import { signIn } from "@/utils/api"
+import { useUser } from "@/contexts/UserContext"
+import { isAuthenticated } from "@/utils/auth"
+
+function isGachonEmail(email: string): boolean {
+  return email.endsWith("@gachon.ac.kr")
+}
 
 export default function LoginPage() {
-  const [error, setError] = useState<string>("");
-  const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
+  const [error, setError] = useState<string>("")
+  const [showPassword, setShowPassword] = useState(false)
+  const [email, setEmail] = useState("")
+  const [emailError, setEmailError] = useState("")
+  const router = useRouter()
+  const { refreshUser } = useUser()
 
-  async function handleSubmit(formData: FormData) {
-    const result = await signIn(formData);
-    if (result.error) {
-      setError(result.error);
-      return;
+  useEffect(() => {
+    const checkAuth = async () => {
+      if (isAuthenticated()) {
+        router.push("/")
+      }
     }
-    if (result.success) {
-      // 로그인 성공 시 처리
-      window.location.href = "/dashboard";
+    checkAuth()
+  }, [router])
+
+  useEffect(() => {
+    if (email && !isGachonEmail(email)) {
+      setEmailError("가천대학교 이메일(@gachon.ac.kr)만 사용 가능합니다.")
+    } else {
+      setEmailError("")
+    }
+  }, [email])
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    if (emailError) {
+      return
+    }
+
+    const formData = new FormData(e.currentTarget)
+    try {
+      const result = await signIn(formData)
+
+      if (result.success) {
+        await refreshUser()
+        router.push("/")
+      } else {
+        setError("로그인에 실패했습니다.")
+      }
+    } catch (err) {
+      setError("로그인 중 오류가 발생했습니다.")
     }
   }
 
@@ -42,7 +79,7 @@ export default function LoginPage() {
             <CardDescription>학교 이메일로 시작하기</CardDescription>
           </CardHeader>
           <CardContent>
-            <form action={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">학교 이메일</Label>
                 <Input
@@ -50,9 +87,15 @@ export default function LoginPage() {
                   name="email"
                   type="email"
                   placeholder="example@gachon.ac.kr"
-                  className="border-2 focus:border-brand-500"
+                  className={`border-2 ${emailError ? "border-red-500" : "focus:border-brand-500"}`}
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value)
+                    setError("")
+                  }}
                   required
                 />
+                {emailError && <p className="text-sm text-red-500 mt-1">{emailError}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">비밀번호</Label>
@@ -60,16 +103,16 @@ export default function LoginPage() {
                   <Input
                     id="password"
                     name="password"
-                    type={showPasswordConfirm ? "text" : "password"}
+                    type={showPassword ? "text" : "password"}
                     className="border-2 focus:border-brand-500 pr-10"
                     required
                   />
                   <button
                     type="button"
                     className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                    onClick={() => setShowPasswordConfirm(!showPasswordConfirm)}
+                    onClick={() => setShowPassword(!showPassword)}
                   >
-                    {showPasswordConfirm ? (
+                    {showPassword ? (
                       <EyeOff className="h-5 w-5 text-gray-400" />
                     ) : (
                       <Eye className="h-5 w-5 text-gray-400" />
@@ -84,7 +127,7 @@ export default function LoginPage() {
                 </Alert>
               )}
 
-              <Button type="submit" className="w-full bg-brand-600 hover:bg-brand-700">
+              <Button type="submit" className="w-full bg-brand-600 hover:bg-brand-700" disabled={!!emailError}>
                 로그인
               </Button>
 
@@ -118,5 +161,6 @@ export default function LoginPage() {
         </footer>
       </div>
     </div>
-  );
+  )
 }
+
