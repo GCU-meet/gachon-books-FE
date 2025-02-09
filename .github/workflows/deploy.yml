@@ -23,7 +23,7 @@ jobs:
           API_TOKEN_GITHUB: ${{ secrets.ACCESS_TOKEN }}
         with:
           source-directory: "output"
-          destination-github-username: eeeasycode
+          destination-github-username: EeeasyCode
           destination-repository-name: gachon-books-fe
           user-email: eeeasycode@gmail.com
           commit-message: ${{ github.event.commits[0].message }}
