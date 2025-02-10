@@ -11,7 +11,7 @@ export async function signIn(formData: FormData) {
 
   if (!response.ok) {
     const errorData = await response.json();
-    throw new Error(errorData.message || "로그인 중 오류가 발생했습니다.");
+    return { success: false, error: errorData.message || "로그인 중 오류가 발생했습니다." };
   }
 
   const data = await response.json();
