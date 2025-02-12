@@ -152,11 +152,11 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-stretch bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl w-full flex gap-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-6 sm:py-12 px-2 sm:px-6 lg:px-8">
+      <div className="max-w-6xl w-full flex flex-col lg:flex-row items-stretch gap-4 lg:gap-8">
         {/* Left side - Signup Form */}
-        <div className="flex-1 flex flex-col items-center justify-center">
-          <div className="w-full max-w-md space-y-8">
+        <div className="flex-1 flex flex-col justify-center w-full lg:w-auto">
+          <div className="w-full max-w-md mx-auto space-y-4 sm:space-y-8">
             <div className="flex flex-col items-center space-y-4">
               <Logo />
               <h1 className="text-2xl font-bold tracking-tight text-gray-900">가천대생을 위한 중고책 거래</h1>
@@ -183,7 +183,7 @@ export default function SignUpPage() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="email">가천대 이메일</Label>
-                    <div className="flex space-x-2">
+                    <div className="flex flex-col sm:flex-row gap-2 sm:space-x-2">
                       <Input
                         id="email"
                         name="email"
@@ -385,7 +385,7 @@ export default function SignUpPage() {
         </div>
 
         {/* Right side - Service Preview */}
-        <div className="hidden lg:flex flex-1">
+        <div className="hidden lg:flex flex-1 items-stretch">
           <ServicePreview />
         </div>
       </div>
