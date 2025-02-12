@@ -29,7 +29,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     const checkAuth = async () => {
-      if (isAuthenticated()) {
+      if (await isAuthenticated()) {
         router.push("/");
       }
     };

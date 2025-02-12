@@ -1,25 +1,76 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { BookOpen, LogOut, PlusCircle, Search } from "lucide-react";
+import { Bell, PlusCircle, Search, Timer, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Logo } from "@/components/logo";
-import { useUser } from "@/contexts/UserContext";
-import { removeTokens } from "@/utils/auth";
+import { isAuthenticated, removeTokens } from "@/utils/auth";
 import { toast } from "@/components/ui/use-toast";
 
+const categories = ["전체", "IT/컴퓨터", "경영/경제", "의학", "공학", "인문", "사회과학", "자연과학", "예술/체육"];
+
+const mockBooks = [
+  {
+    id: 1,
+    title: "컴퓨터 구조론",
+    author: "김철수",
+    publisher: "가천출판사",
+    currentPrice: 15000,
+    originalPrice: 28000,
+    timeLeft: "2시간 32분",
+    department: "컴퓨터공학과",
+    condition: "상",
+    bids: 5,
+    imageUrl: "/placeholder.svg?height=200&width=150",
+    tags: ["IT", "필수교재", "2024-1학기"],
+  },
+  {
+    id: 2,
+    title: "경영학원론",
+    author: "박영희",
+    publisher: "경영출판사",
+    currentPrice: 12000,
+    originalPrice: 25000,
+    timeLeft: "1일 4시간",
+    department: "경영학과",
+    condition: "중",
+    bids: 3,
+    imageUrl: "/placeholder.svg?height=200&width=150",
+    tags: ["경영", "필수교재"],
+  },
+  // ... 더 많은 책 데이터
+];
+
 export default function Home() {
-  const { user, loading } = useUser(); 
+  const [userName, setUserName] = useState<string | null>(null);
   const router = useRouter();
+  const [selectedCategory, setSelectedCategory] = useState("전체");
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.push("/login"); 
-    }
-  }, [user, loading, router]);
+    const checkAuth = async () => {
+      const isAuth = await isAuthenticated();
+      if (!isAuth) {
+        router.push("/login");
+      } else {
+        setUserName("사용자");
+      }
+    };
+    checkAuth();
+  }, [router]);
 
   const handleLogout = () => {
     removeTokens();
@@ -30,74 +81,153 @@ export default function Home() {
     router.push("/login");
   };
 
-  if (loading) {
-    return <div>Loading...</div>; 
-  }
-
-  if (!user) {
-    return null; 
+  if (!userName) {
+    return <div>Loading...</div>;
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <Logo />
-          <div className="flex items-center space-x-4">
-            <span className="text-gray-700">안녕하세요, {user.name}님!</span> {/* ✅ user.name 사용 */}
-            <Button variant="ghost" size="sm" onClick={handleLogout}>
-              <LogOut className="mr-2 h-4 w-4" />
-              로그아웃
-            </Button>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="sticky top-0 z-50 bg-white border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <Logo />
+
+            {/* Search */}
+            <div className="flex-1 max-w-2xl px-8">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  type="search"
+                  placeholder="책 제목, 저자, 학과 등으로 검색"
+                  className="pl-10 w-full bg-gray-50"
+                />
+              </div>
+            </div>
+
+            {/* User Menu */}
+            <div className="flex items-center gap-4">
+              <Button variant="ghost" size="icon" className="relative">
+                <Bell className="h-5 w-5" />
+                <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full" />
+              </Button>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger>
+                  <Avatar>
+                    <AvatarImage src="/placeholder.svg" />
+                    <AvatarFallback>UN</AvatarFallback>
+                  </Avatar>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>내 계정</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>프로필 설정</DropdownMenuItem>
+                  <DropdownMenuItem>내 경매 내역</DropdownMenuItem>
+                  <DropdownMenuItem>관심 목록</DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout}>로그아웃</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">중고책 거래</h1>
-          <Button>
-            <PlusCircle className="mr-2 h-4 w-4" />책 등록하기
-          </Button>
-        </div>
-
-        <div className="mb-8">
-          <form className="flex gap-2">
-            <Input type="search" placeholder="책 제목, 저자, 학과 등으로 검색" className="flex-grow" />
-            <Button type="submit">
-              <Search className="mr-2 h-4 w-4" />
-              검색
+        {/* Categories */}
+        <div className="flex gap-2 overflow-x-auto pb-4 scrollbar-hide">
+          {categories.map((category) => (
+            <Button
+              key={category}
+              variant={selectedCategory === category ? "default" : "outline"}
+              onClick={() => setSelectedCategory(category)}
+              className="whitespace-nowrap"
+            >
+              {category}
             </Button>
-          </form>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1, 2, 3, 4, 5, 6].map((book) => (
-            <Card key={book}>
-              <CardHeader>
-                <CardTitle>책 제목 {book}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p>저자: 작가 이름</p>
-                <p>가격: ₩15,000</p>
-                <p>상태: 좋음</p>
-              </CardContent>
-              <CardFooter>
-                <Button variant="outline" className="w-full">
-                  <BookOpen className="mr-2 h-4 w-4" />
-                  자세히 보기
-                </Button>
-              </CardFooter>
-            </Card>
           ))}
         </div>
-      </main>
 
-      <footer className="bg-white shadow mt-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 text-center text-gray-500">
-          © 2023 가천북스. All rights reserved.
-        </div>
-      </footer>
+        {/* Tabs */}
+        <Tabs defaultValue="all" className="mt-8">
+          <div className="flex justify-between items-center">
+            <TabsList>
+              <TabsTrigger value="all">전체 경매</TabsTrigger>
+              <TabsTrigger value="ending">마감 임박</TabsTrigger>
+              <TabsTrigger value="popular">인기 경매</TabsTrigger>
+              <TabsTrigger value="department">학과별</TabsTrigger>
+            </TabsList>
+            <Button>
+              <PlusCircle className="mr-2 h-4 w-4" />책 등록하기
+            </Button>
+          </div>
+
+          <TabsContent value="all" className="mt-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {mockBooks.map((book) => (
+                <Card key={book.id} className="group hover:border-brand-500 transition-colors">
+                  <CardHeader className="p-4">
+                    <div className="aspect-[3/4] relative rounded-lg overflow-hidden mb-4">
+                      <img
+                        src={book.imageUrl || "/placeholder.svg"}
+                        alt={book.title}
+                        className="object-cover w-full h-full group-hover:scale-105 transition-transform"
+                      />
+                      {book.timeLeft && (
+                        <div className="absolute bottom-2 left-2 bg-black/70 text-white px-2 py-1 rounded-full text-xs flex items-center">
+                          <Timer className="w-3 h-3 mr-1" />
+                          {book.timeLeft}
+                        </div>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <CardTitle className="text-lg line-clamp-2">{book.title}</CardTitle>
+                      <CardDescription>
+                        {book.author} · {book.publisher}
+                      </CardDescription>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-4 pt-0">
+                    <div className="flex items-baseline justify-between">
+                      <div className="space-y-1">
+                        <div className="text-sm text-muted-foreground">현재가</div>
+                        <div className="text-lg font-bold text-brand-600">{book.currentPrice.toLocaleString()}원</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm text-muted-foreground line-through">
+                          {book.originalPrice.toLocaleString()}원
+                        </div>
+                        <div className="text-sm text-brand-600 font-medium">
+                          {Math.round((1 - book.currentPrice / book.originalPrice) * 100)}% 할인
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                  <CardFooter className="p-4 pt-0">
+                    <div className="w-full space-y-2">
+                      <div className="flex items-center justify-between text-sm text-muted-foreground">
+                        <div className="flex items-center">
+                          <TrendingUp className="w-4 h-4 mr-1" />
+                          입찰 {book.bids}회
+                        </div>
+                        <Badge variant="secondary">{book.condition}급</Badge>
+                      </div>
+                      <div className="flex gap-2 flex-wrap">
+                        {book.tags.map((tag) => (
+                          <Badge key={tag} variant="outline" className="bg-brand-50">
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+        </Tabs>
+      </main>
     </div>
   );
 }
