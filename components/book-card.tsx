@@ -1,7 +1,7 @@
-import { Timer, TrendingUp, Sparkles } from "lucide-react";
+import { Timer, TrendingUp, Sparkles, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 interface BookCardProps {
@@ -31,43 +31,43 @@ export function BookCard({ book, viewType = "grid" }: BookCardProps) {
 
   return (
     <Card
-      className={cn("group transition-all duration-200 hover:border-brand-500", isListView ? "flex items-center" : "")}
+      className={cn(
+        "group transition-all duration-200 hover:border-brand-500 hover:shadow-md",
+        isListView ? "flex items-center p-4" : ""
+      )}
     >
-      <div className={cn("relative", isListView ? "w-24 h-24 shrink-0" : "aspect-[3/4]")}>
+      <div className={cn("relative overflow-hidden rounded-lg", isListView ? "w-24 h-24 shrink-0" : "aspect-[4/3]")}>
         {book.imageUrl ? (
           <img
             src={book.imageUrl || "/placeholder.svg"}
             alt={book.title}
             className={cn(
-              "object-cover rounded-lg transition-transform group-hover:scale-105",
-              isListView ? "w-24 h-24" : "w-full h-full"
+              "object-cover w-full h-full transition-transform duration-300 group-hover:scale-110",
+              isListView ? "rounded-lg" : ""
             )}
           />
         ) : (
           <div
-            className={cn(
-              "flex items-center justify-center bg-muted rounded-lg",
-              isListView ? "w-24 h-24" : "w-full h-full"
-            )}
+            className={cn("flex items-center justify-center bg-gray-100 w-full h-full", isListView ? "rounded-lg" : "")}
           >
             <BookPlaceholder />
           </div>
         )}
-        <div className="absolute top-2 left-2 flex gap-1">
+        <div className="absolute top-2 left-2 flex gap-1.5">
           {book.isPopular && (
-            <Badge variant="secondary" className="bg-red-100 text-red-700">
+            <Badge className="bg-red-500 text-white border-none">
               <TrendingUp className="mr-1 h-3 w-3" />
               인기
             </Badge>
           )}
           {book.isEnding && (
-            <Badge variant="secondary" className="bg-amber-100 text-amber-700">
+            <Badge className="bg-amber-500 text-white border-none">
               <Timer className="mr-1 h-3 w-3" />
               마감임박
             </Badge>
           )}
           {book.isNew && (
-            <Badge variant="secondary" className="bg-green-100 text-green-700">
+            <Badge className="bg-emerald-500 text-white border-none">
               <Sparkles className="mr-1 h-3 w-3" />
               신규
             </Badge>
@@ -75,78 +75,75 @@ export function BookCard({ book, viewType = "grid" }: BookCardProps) {
         </div>
       </div>
 
-      <div className={cn("flex-1", isListView ? "p-4" : "")}>
-        {!isListView && (
-          <CardHeader className="p-4">
-            <div className="space-y-2">
-              <h3 className="font-semibold line-clamp-2">{book.title}</h3>
-              <p className="text-sm text-muted-foreground">
-                {book.author} · {book.publisher}
-              </p>
-            </div>
-          </CardHeader>
-        )}
+      <div className={cn("flex-1", isListView ? "ml-4" : "p-4")}>
+        <div className="space-y-2">
+          <div>
+            <h3 className="font-semibold text-lg line-clamp-2 leading-tight">{book.title}</h3>
+            <p className="text-sm text-gray-500 mt-1">
+              {book.author} · {book.publisher}
+            </p>
+          </div>
 
-        <CardContent className={cn(isListView ? "p-0" : "p-4 pt-0")}>
-          {isListView ? (
+          <div className="flex items-end justify-between">
             <div>
-              <h3 className="font-semibold line-clamp-1">{book.title}</h3>
-              <p className="text-sm text-muted-foreground line-clamp-1">
-                {book.author} · {book.publisher}
-              </p>
-            </div>
-          ) : null}
-          <div className={cn("flex items-baseline justify-between", isListView ? "mt-2" : "")}>
-            <div className="space-y-1">
-              <div className="text-sm text-muted-foreground">현재가</div>
-              <div className="text-lg font-bold text-brand-600">{book.currentPrice.toLocaleString()}원</div>
+              <div className="text-xs text-gray-500">현재가</div>
+              <div className="text-xl font-bold text-brand-600">{book.currentPrice.toLocaleString()}원</div>
+              <div className="text-sm text-gray-400 line-through">{book.originalPrice.toLocaleString()}원</div>
             </div>
             <div className="text-right">
-              <div className="text-sm text-muted-foreground line-through">{book.originalPrice.toLocaleString()}원</div>
-              <div className="text-sm text-brand-600 font-medium">
+              <div className="text-sm font-medium text-brand-600">
                 {Math.round((1 - book.currentPrice / book.originalPrice) * 100)}% 할인
               </div>
+              {book.buyNowPrice && (
+                <div className="text-sm text-gray-600 font-medium mt-1">
+                  즉시 구매가: {book.buyNowPrice.toLocaleString()}원
+                </div>
+              )}
             </div>
           </div>
-          {book.buyNowPrice && (
-            <div className="mt-2 text-sm text-muted-foreground">즉시 구매가: {book.buyNowPrice.toLocaleString()}원</div>
-          )}
-        </CardContent>
 
-        {!isListView && (
-          <CardFooter className="p-4 pt-0">
-            <div className="w-full space-y-2">
-              <div className="flex items-center justify-between text-sm text-muted-foreground">
-                <div className="flex items-center">
-                  <TrendingUp className="mr-1 h-4 w-4" />
-                  입찰 {book.bids}회
-                </div>
-                <Badge variant="secondary">{book.condition}급</Badge>
-              </div>
-              <div className="flex gap-2 flex-wrap">
-                {book.tags.map((tag) => (
-                  <Badge key={tag} variant="outline" className="bg-brand-50">
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          </CardFooter>
-        )}
-
-        {isListView && (
-          <div className="mt-2 flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Badge variant="secondary">{book.condition}급</Badge>
-              <span>·</span>
+          <div className="flex items-center justify-between text-sm text-gray-500">
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary" className="bg-gray-100">
+                {book.condition}급
+              </Badge>
               <div className="flex items-center">
                 <TrendingUp className="mr-1 h-3 w-3" />
-                {book.bids}
+                입찰 {book.bids}회
               </div>
             </div>
-            <Button size="sm">입찰하기</Button>
+            <div className="flex items-center text-brand-600">
+              <Timer className="mr-1 h-3 w-3" />
+              {book.timeLeft}
+            </div>
           </div>
-        )}
+
+          {!isListView && (
+            <div className="flex gap-2 flex-wrap mt-2">
+              {book.tags.map((tag) => (
+                <Badge key={tag} variant="secondary" className="bg-gray-100 text-gray-700">
+                  {tag}
+                </Badge>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className={cn("flex gap-2", isListView ? "mt-4" : "mt-6")}>
+          <Button className="flex-1 bg-brand-600 hover:bg-brand-700 text-white" size={isListView ? "sm" : "default"}>
+            입찰하기
+            <ArrowRight className="ml-1 h-4 w-4" />
+          </Button>
+          {book.buyNowPrice && (
+            <Button
+              variant="outline"
+              className="flex-1 border-brand-200 text-brand-700 hover:bg-brand-50"
+              size={isListView ? "sm" : "default"}
+            >
+              즉시 구매
+            </Button>
+          )}
+        </div>
       </div>
     </Card>
   );
@@ -154,14 +151,8 @@ export function BookCard({ book, viewType = "grid" }: BookCardProps) {
 
 function BookPlaceholder() {
   return (
-    <div className="flex flex-col items-center justify-center text-muted-foreground">
-      <svg
-        className="h-12 w-12"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg"
-      >
+    <div className="flex flex-col items-center justify-center text-gray-400">
+      <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -169,7 +160,6 @@ function BookPlaceholder() {
           d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
         />
       </svg>
-      <span className="mt-2 text-sm">이미지 없음</span>
     </div>
   );
 }

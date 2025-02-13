@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Bell, BookOpen, Menu, PlusCircle, LayoutGrid, LayoutList } from "lucide-react";
+import { Bell, BookOpen, Menu, PlusCircle, LayoutGrid, LayoutList, HomeIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -15,11 +15,11 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Logo } from "@/components/logo";
-import { isAuthenticated, removeTokens } from "@/utils/auth";
-import { toast } from "@/components/ui/use-toast";
-import cn from "classnames";
 import { SearchFilter } from "@/components/search-filter";
 import { BookCard } from "@/components/book-card";
+import { isAuthenticated, removeTokens } from "@/utils/auth";
+import { toast } from "@/components/ui/use-toast";
+import { cn } from "@/lib/utils";
 
 const categories = ["전체", "IT/컴퓨터", "경영/경제", "의학", "공학", "인문", "사회과학", "자연과학", "예술/체육"];
 
@@ -103,7 +103,7 @@ export default function Home() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header
-        className={`sticky top-0 z-50 bg-white border-b transition-all duration-200 ${isScrolled ? "shadow-sm" : ""}`}
+        className={cn("sticky top-0 z-50 bg-white border-b transition-all duration-200", isScrolled ? "shadow-sm" : "")}
       >
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-center h-16 px-4">
@@ -114,8 +114,8 @@ export default function Home() {
               <Logo />
             </div>
 
-            <div className={`flex-1 max-w-2xl px-4 transition-all duration-200 ${isScrolled ? "scale-95" : ""}`}>
-              <SearchFilter />
+            <div className="flex-1 max-w-2xl px-4">
+              <SearchFilter isScrolled={isScrolled} />
             </div>
 
             <div className="flex items-center gap-4">
@@ -146,7 +146,7 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <main className="max-w-7xl mx-auto px-4 py-6">
         {/* Categories */}
         <div className="flex gap-2 overflow-x-auto pb-4 scrollbar-hide">
           {categories.map((category) => (
@@ -154,7 +154,11 @@ export default function Home() {
               key={category}
               variant={selectedCategory === category ? "default" : "outline"}
               onClick={() => setSelectedCategory(category)}
-              className="whitespace-nowrap"
+              className={cn(
+                "whitespace-nowrap transition-colors",
+                selectedCategory === category ? "bg-brand-600 hover:bg-brand-700 text-white" : "hover:bg-gray-100"
+              )}
+              size="sm"
             >
               {category}
             </Button>
@@ -162,50 +166,64 @@ export default function Home() {
         </div>
 
         {/* Tabs */}
-        <Tabs defaultValue="all" className="mt-8">
+        <div className="mt-6">
           <div className="flex justify-between items-center">
-            <TabsList>
-              <TabsTrigger value="all">전체 경매</TabsTrigger>
-              <TabsTrigger value="ending">마감 임박</TabsTrigger>
-              <TabsTrigger value="popular">인기 경매</TabsTrigger>
-              <TabsTrigger value="department">학과별</TabsTrigger>
-            </TabsList>
-            <div className="flex items-center gap-2">
-              <div className="hidden sm:flex items-center gap-2 border rounded-lg p-1">
-                <Button
-                  variant={viewType === "grid" ? "secondary" : "ghost"}
-                  size="icon"
-                  onClick={() => setViewType("grid")}
-                >
-                  <LayoutGrid className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant={viewType === "list" ? "secondary" : "ghost"}
-                  size="icon"
-                  onClick={() => setViewType("list")}
-                >
-                  <LayoutList className="h-4 w-4" />
-                </Button>
+            <Tabs defaultValue="all" className="w-full">
+              <div className="flex justify-between items-center">
+                <TabsList className="bg-gray-100">
+                  <TabsTrigger value="all" className="data-[state=active]:bg-white">
+                    전체 경매
+                  </TabsTrigger>
+                  <TabsTrigger value="ending" className="data-[state=active]:bg-white">
+                    마감 임박
+                  </TabsTrigger>
+                  <TabsTrigger value="popular" className="data-[state=active]:bg-white">
+                    인기 경매
+                  </TabsTrigger>
+                  <TabsTrigger value="department" className="data-[state=active]:bg-white">
+                    학과별
+                  </TabsTrigger>
+                </TabsList>
+                <div className="flex items-center gap-2">
+                  <div className="hidden sm:flex items-center gap-2 border rounded-lg p-1">
+                    <Button
+                      variant={viewType === "grid" ? "secondary" : "ghost"}
+                      size="icon"
+                      onClick={() => setViewType("grid")}
+                      className="h-8 w-8"
+                    >
+                      <LayoutGrid className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant={viewType === "list" ? "secondary" : "ghost"}
+                      size="icon"
+                      onClick={() => setViewType("list")}
+                      className="h-8 w-8"
+                    >
+                      <LayoutList className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <Button className="hidden sm:flex bg-brand-600 hover:bg-brand-700">
+                    <PlusCircle className="mr-2 h-4 w-4" />책 등록하기
+                  </Button>
+                </div>
               </div>
-              <Button className="hidden sm:flex">
-                <PlusCircle className="mr-2 h-4 w-4" />책 등록하기
-              </Button>
-            </div>
-          </div>
 
-          <TabsContent value="all" className="mt-6">
-            <div
-              className={cn(
-                "grid gap-6",
-                viewType === "grid" ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" : "grid-cols-1"
-              )}
-            >
-              {mockBooks.map((book) => (
-                <BookCard key={book.id} book={book} viewType={viewType} />
-              ))}
-            </div>
-          </TabsContent>
-        </Tabs>
+              <TabsContent value="all" className="mt-6">
+                <div
+                  className={cn(
+                    "grid gap-6",
+                    viewType === "grid" ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : "grid-cols-1"
+                  )}
+                >
+                  {mockBooks.map((book) => (
+                    <BookCard key={book.id} book={book} viewType={viewType} />
+                  ))}
+                </div>
+              </TabsContent>
+            </Tabs>
+          </div>
+        </div>
       </main>
 
       {/* Mobile Bottom Navigation */}
@@ -213,7 +231,7 @@ export default function Home() {
         <div className="flex items-center justify-around h-16">
           <Button variant="ghost" className="flex-1">
             <div className="flex flex-col items-center">
-              <BookOpen className="h-5 w-5" />
+              <HomeIcon className="h-5 w-5" />
               <span className="text-xs mt-1">홈</span>
             </div>
           </Button>
@@ -223,9 +241,11 @@ export default function Home() {
               <span className="text-xs mt-1">알림</span>
             </div>
           </Button>
-          <Button className="rounded-full w-12 h-12 absolute -top-6 left-1/2 transform -translate-x-1/2 bg-brand-600">
-            <PlusCircle className="h-6 w-6" />
-          </Button>
+          <div className="flex-1 relative">
+            <Button className="absolute -top-6 left-1/2 transform -translate-x-1/2 rounded-full w-14 h-14 bg-brand-600 hover:bg-brand-700 shadow-lg">
+              <PlusCircle className="h-6 w-6" />
+            </Button>
+          </div>
           <Button variant="ghost" className="flex-1">
             <div className="flex flex-col items-center">
               <BookOpen className="h-5 w-5" />
