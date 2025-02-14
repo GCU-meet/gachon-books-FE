@@ -146,19 +146,19 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-6">
+      <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Categories */}
-        <div className="flex gap-2 overflow-x-auto pb-4 scrollbar-hide">
+        <div className="flex gap-2 overflow-x-auto pb-6 scrollbar-hide">
           {categories.map((category) => (
             <Button
               key={category}
               variant={selectedCategory === category ? "default" : "outline"}
               onClick={() => setSelectedCategory(category)}
               className={cn(
-                "whitespace-nowrap transition-colors",
+                "whitespace-nowrap transition-colors px-6",
                 selectedCategory === category ? "bg-brand-600 hover:bg-brand-700 text-white" : "hover:bg-gray-100"
               )}
-              size="sm"
+              size="lg"
             >
               {category}
             </Button>
@@ -166,31 +166,31 @@ export default function Home() {
         </div>
 
         {/* Tabs */}
-        <div className="mt-6">
+        <div className="mt-8">
           <div className="flex justify-between items-center">
             <Tabs defaultValue="all" className="w-full">
-              <div className="flex justify-between items-center">
-                <TabsList className="bg-gray-100">
-                  <TabsTrigger value="all" className="data-[state=active]:bg-white">
+              <div className="flex justify-between items-center mb-6">
+                <TabsList className="bg-gray-100 p-1">
+                  <TabsTrigger value="all" className="data-[state=active]:bg-white px-6">
                     전체 경매
                   </TabsTrigger>
-                  <TabsTrigger value="ending" className="data-[state=active]:bg-white">
+                  <TabsTrigger value="ending" className="data-[state=active]:bg-white px-6">
                     마감 임박
                   </TabsTrigger>
-                  <TabsTrigger value="popular" className="data-[state=active]:bg-white">
+                  <TabsTrigger value="popular" className="data-[state=active]:bg-white px-6">
                     인기 경매
                   </TabsTrigger>
-                  <TabsTrigger value="department" className="data-[state=active]:bg-white">
+                  <TabsTrigger value="department" className="data-[state=active]:bg-white px-6">
                     학과별
                   </TabsTrigger>
                 </TabsList>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
                   <div className="hidden sm:flex items-center gap-2 border rounded-lg p-1">
                     <Button
                       variant={viewType === "grid" ? "secondary" : "ghost"}
                       size="icon"
                       onClick={() => setViewType("grid")}
-                      className="h-8 w-8"
+                      className="h-9 w-9"
                     >
                       <LayoutGrid className="h-4 w-4" />
                     </Button>
@@ -198,13 +198,13 @@ export default function Home() {
                       variant={viewType === "list" ? "secondary" : "ghost"}
                       size="icon"
                       onClick={() => setViewType("list")}
-                      className="h-8 w-8"
+                      className="h-9 w-9"
                     >
                       <LayoutList className="h-4 w-4" />
                     </Button>
                   </div>
-                  <Button className="hidden sm:flex bg-brand-600 hover:bg-brand-700">
-                    <PlusCircle className="mr-2 h-4 w-4" />책 등록하기
+                  <Button size="lg" className="hidden sm:flex bg-brand-600 hover:bg-brand-700">
+                    <PlusCircle className="mr-2 h-5 w-5" />책 등록하기
                   </Button>
                 </div>
               </div>
@@ -212,8 +212,10 @@ export default function Home() {
               <TabsContent value="all" className="mt-6">
                 <div
                   className={cn(
-                    "grid gap-6",
-                    viewType === "grid" ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : "grid-cols-1"
+                    "grid gap-8",
+                    viewType === "grid"
+                      ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                      : "grid-cols-1 gap-6"
                   )}
                 >
                   {mockBooks.map((book) => (
