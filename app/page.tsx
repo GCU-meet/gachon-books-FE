@@ -2,26 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Bell, BookOpen, Menu, PlusCircle, LayoutGrid, LayoutList, HomeIcon } from "lucide-react";
+import { Bell, BookOpen, Menu, PlusCircle, HomeIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Logo } from "@/components/logo";
-import { SearchFilter } from "@/components/search-filter";
 import { BookCard } from "@/components/book-card";
-import { isAuthenticated, removeTokens } from "@/utils/auth";
-import { toast } from "@/components/ui/use-toast";
+import { isAuthenticated } from "@/utils/auth";
 import { cn } from "@/lib/utils";
 
-const categories = ["전체", "IT/컴퓨터", "경영/경제", "의학", "공학", "인문", "사회과학", "자연과학", "예술/체육"];
+const categories = ["전체", "IT/컴퓨터", "경영/경제", "의학", "공학", "인문"];
+const tabs = ["전체 경매", "마감 임박", "인기 경매", "학과별"];
 
 const mockBooks = [
   {
@@ -33,11 +23,9 @@ const mockBooks = [
     originalPrice: 28000,
     buyNowPrice: 20000,
     timeLeft: "2시간 32분",
-    department: "컴퓨터공학과",
     condition: "상",
     bids: 12,
-    imageUrl: "/placeholder.svg?height=200&width=150",
-    tags: ["IT", "필수교재", "2024-1학기"],
+    imageUrl: "/placeholder.svg?height=100&width=100",
     isPopular: true,
     isEnding: true,
   },
@@ -49,212 +37,156 @@ const mockBooks = [
     currentPrice: 12000,
     originalPrice: 25000,
     timeLeft: "1일 4시간",
-    department: "경영학과",
     condition: "중",
     bids: 3,
-    imageUrl: "/placeholder.svg?height=200&width=150",
-    tags: ["경영", "필수교재"],
+    imageUrl: "/placeholder.svg?height=100&width=100",
     isNew: true,
   },
-  // ... 더 많은 책 데이터
 ];
 
 export default function Home() {
-  const [userName, setUserName] = useState<string | null>(null);
-  const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState("전체");
-  const [viewType, setViewType] = useState<"grid" | "list">("grid");
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [selectedTab, setSelectedTab] = useState("전체 경매");
+  const router = useRouter();
 
   useEffect(() => {
     const checkAuth = async () => {
-      const isAuth = await isAuthenticated();
-      if (!isAuth) {
+      if (!(await isAuthenticated())) {
         router.push("/login");
-      } else {
-        setUserName("사용자");
       }
     };
     checkAuth();
   }, [router]);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const handleLogout = () => {
-    removeTokens();
-    toast({
-      title: "로그아웃 되었습니다.",
-      duration: 3000,
-    });
-    router.push("/login");
-  };
-
-  if (!userName) {
-    return <div>Loading...</div>;
-  }
-
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header
-        className={cn("sticky top-0 z-50 bg-white border-b transition-all duration-200", isScrolled ? "shadow-sm" : "")}
-      >
-        <div className="max-w-7xl mx-auto">
-          <div className="flex justify-between items-center h-16 px-4">
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" className="lg:hidden">
-                <Menu className="h-5 w-5" />
+      <header className="sticky top-0 z-50 bg-white border-b">
+        <div className="flex items-center h-14 px-4">
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="icon" className="lg:hidden">
+              <Menu className="h-5 w-5" />
+            </Button>
+            <Logo />
+          </div>
+
+          <div className="flex-1" />
+
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" className="relative">
+              <Bell className="h-5 w-5" />
+              <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full" />
+            </Button>
+            <Avatar className="h-8 w-8">
+              <AvatarImage src="/placeholder.svg" />
+              <AvatarFallback>UN</AvatarFallback>
+            </Avatar>
+          </div>
+        </div>
+
+        {/* Search Bar */}
+        <div className="px-4 py-2 border-b">
+          <div className="relative">
+            <input
+              type="search"
+              placeholder="책 제목, 저자, 학과 등으로 검색"
+              className="w-full h-10 pl-10 pr-4 rounded-lg bg-gray-50 border border-gray-200 text-sm focus:outline-none focus:border-brand-500"
+            />
+            <svg
+              className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+          </div>
+        </div>
+
+        {/* Categories */}
+        <div className="overflow-x-auto scrollbar-hide border-b">
+          <div className="flex px-4 py-2 gap-2">
+            {categories.map((category) => (
+              <Button
+                key={category}
+                variant={selectedCategory === category ? "default" : "outline"}
+                onClick={() => setSelectedCategory(category)}
+                className={cn(
+                  "whitespace-nowrap px-4",
+                  selectedCategory === category
+                    ? "bg-brand-600 hover:bg-brand-700 text-white"
+                    : "bg-white hover:bg-gray-50"
+                )}
+                size="sm"
+              >
+                {category}
               </Button>
-              <Logo />
-            </div>
+            ))}
+          </div>
+        </div>
 
-            <div className="flex-1 max-w-2xl px-4">
-              <SearchFilter isScrolled={isScrolled} />
-            </div>
-
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="icon" className="relative">
-                <Bell className="h-5 w-5" />
-                <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full" />
-              </Button>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger>
-                  <Avatar>
-                    <AvatarImage src="/placeholder.svg" />
-                    <AvatarFallback>UN</AvatarFallback>
-                  </Avatar>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel>내 계정</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>프로필 설정</DropdownMenuItem>
-                  <DropdownMenuItem>내 경매 내역</DropdownMenuItem>
-                  <DropdownMenuItem>관심 목록</DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout}>로그아웃</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+        {/* Tabs */}
+        <div className="overflow-x-auto scrollbar-hide bg-gray-50">
+          <div className="flex px-4 gap-4">
+            {tabs.map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setSelectedTab(tab)}
+                className={cn(
+                  "px-1 py-3 text-sm font-medium border-b-2 transition-colors",
+                  selectedTab === tab
+                    ? "border-brand-600 text-brand-600"
+                    : "border-transparent text-gray-500 hover:text-gray-900"
+                )}
+              >
+                {tab}
+              </button>
+            ))}
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        {/* Categories */}
-        <div className="flex gap-2 overflow-x-auto pb-6 scrollbar-hide">
-          {categories.map((category) => (
-            <Button
-              key={category}
-              variant={selectedCategory === category ? "default" : "outline"}
-              onClick={() => setSelectedCategory(category)}
-              className={cn(
-                "whitespace-nowrap transition-colors px-6",
-                selectedCategory === category ? "bg-brand-600 hover:bg-brand-700 text-white" : "hover:bg-gray-100"
-              )}
-              size="lg"
-            >
-              {category}
-            </Button>
+      {/* Main Content */}
+      <main className="max-w-3xl mx-auto px-4 py-4">
+        <div className="space-y-3">
+          {mockBooks.map((book) => (
+            <BookCard key={book.id} book={book} />
           ))}
-        </div>
-
-        {/* Tabs */}
-        <div className="mt-8">
-          <div className="flex justify-between items-center">
-            <Tabs defaultValue="all" className="w-full">
-              <div className="flex justify-between items-center mb-6">
-                <TabsList className="bg-gray-100 p-1">
-                  <TabsTrigger value="all" className="data-[state=active]:bg-white px-6">
-                    전체 경매
-                  </TabsTrigger>
-                  <TabsTrigger value="ending" className="data-[state=active]:bg-white px-6">
-                    마감 임박
-                  </TabsTrigger>
-                  <TabsTrigger value="popular" className="data-[state=active]:bg-white px-6">
-                    인기 경매
-                  </TabsTrigger>
-                  <TabsTrigger value="department" className="data-[state=active]:bg-white px-6">
-                    학과별
-                  </TabsTrigger>
-                </TabsList>
-                <div className="flex items-center gap-3">
-                  <div className="hidden sm:flex items-center gap-2 border rounded-lg p-1">
-                    <Button
-                      variant={viewType === "grid" ? "secondary" : "ghost"}
-                      size="icon"
-                      onClick={() => setViewType("grid")}
-                      className="h-9 w-9"
-                    >
-                      <LayoutGrid className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant={viewType === "list" ? "secondary" : "ghost"}
-                      size="icon"
-                      onClick={() => setViewType("list")}
-                      className="h-9 w-9"
-                    >
-                      <LayoutList className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <Button size="lg" className="hidden sm:flex bg-brand-600 hover:bg-brand-700">
-                    <PlusCircle className="mr-2 h-5 w-5" />책 등록하기
-                  </Button>
-                </div>
-              </div>
-
-              <TabsContent value="all" className="mt-6">
-                <div
-                  className={cn(
-                    "grid gap-8",
-                    viewType === "grid"
-                      ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-                      : "grid-cols-1 gap-6"
-                  )}
-                >
-                  {mockBooks.map((book) => (
-                    <BookCard key={book.id} book={book} viewType={viewType} />
-                  ))}
-                </div>
-              </TabsContent>
-            </Tabs>
-          </div>
         </div>
       </main>
 
       {/* Mobile Bottom Navigation */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t sm:hidden">
-        <div className="flex items-center justify-around h-16">
-          <Button variant="ghost" className="flex-1">
+        <div className="flex items-center justify-around h-14">
+          <Button variant="ghost" className="flex-1 h-14">
             <div className="flex flex-col items-center">
               <HomeIcon className="h-5 w-5" />
               <span className="text-xs mt-1">홈</span>
             </div>
           </Button>
-          <Button variant="ghost" className="flex-1">
+          <Button variant="ghost" className="flex-1 h-14">
             <div className="flex flex-col items-center">
               <Bell className="h-5 w-5" />
               <span className="text-xs mt-1">알림</span>
             </div>
           </Button>
-          <div className="flex-1 relative">
-            <Button className="absolute -top-6 left-1/2 transform -translate-x-1/2 rounded-full w-14 h-14 bg-brand-600 hover:bg-brand-700 shadow-lg">
-              <PlusCircle className="h-6 w-6" />
+          <div className="flex-1 relative flex justify-center">
+            <Button className="absolute -top-5 rounded-full w-12 h-12 bg-brand-600 hover:bg-brand-700 shadow-lg">
+              <PlusCircle className="h-5 w-5" />
             </Button>
           </div>
-          <Button variant="ghost" className="flex-1">
+          <Button variant="ghost" className="flex-1 h-14">
             <div className="flex flex-col items-center">
               <BookOpen className="h-5 w-5" />
               <span className="text-xs mt-1">내 경매</span>
             </div>
           </Button>
-          <Button variant="ghost" className="flex-1">
+          <Button variant="ghost" className="flex-1 h-14">
             <div className="flex flex-col items-center">
               <Avatar className="h-5 w-5">
                 <AvatarFallback className="text-xs">UN</AvatarFallback>

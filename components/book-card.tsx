@@ -1,8 +1,7 @@
-import { Timer, TrendingUp, Sparkles, ArrowRight } from "lucide-react";
+import { Timer, TrendingUp, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 
 interface BookCardProps {
   book: {
@@ -14,141 +13,94 @@ interface BookCardProps {
     originalPrice: number;
     buyNowPrice?: number;
     timeLeft: string;
-    department: string;
     condition: string;
     bids: number;
     imageUrl?: string;
-    tags: string[];
     isPopular?: boolean;
     isEnding?: boolean;
     isNew?: boolean;
   };
-  viewType?: "grid" | "list";
 }
 
-export function BookCard({ book, viewType = "grid" }: BookCardProps) {
-  const isListView = viewType === "list";
+export function BookCard({ book }: BookCardProps) {
   const discountPercentage = Math.round((1 - book.currentPrice / book.originalPrice) * 100);
 
   return (
-    <Card
-      className={cn(
-        "group transition-all duration-200 hover:border-brand-500 hover:shadow-md overflow-hidden",
-        isListView ? "flex gap-6 p-6" : ""
-      )}
-    >
-      <div
-        className={cn(
-          "relative overflow-hidden bg-gray-50",
-          isListView ? "w-40 h-40 shrink-0 rounded-lg" : "aspect-[4/3]"
-        )}
-      >
-        {book.imageUrl ? (
-          <img
-            src={book.imageUrl || "/placeholder.svg"}
-            alt={book.title}
-            className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
-          />
-        ) : (
-          <div className="flex items-center justify-center w-full h-full">
-            <BookPlaceholder />
+    <Card className="overflow-hidden border-0 shadow-sm">
+      <div className="flex gap-4 p-4">
+        <div className="relative w-[100px] h-[100px] bg-gray-100 rounded-lg shrink-0">
+          {book.imageUrl ? (
+            <img
+              src={book.imageUrl || "/placeholder.svg"}
+              alt={book.title}
+              className="w-full h-full object-cover rounded-lg"
+            />
+          ) : (
+            <div className="flex items-center justify-center w-full h-full">
+              <BookPlaceholder />
+            </div>
+          )}
+          <div className="absolute top-1 left-1 flex gap-1">
+            {book.isPopular && (
+              <Badge className="bg-red-500 text-white border-none px-1.5 py-0.5 text-[10px]">
+                <TrendingUp className="mr-0.5 h-2.5 w-2.5" />
+                인기
+              </Badge>
+            )}
+            {book.isNew && (
+              <Badge className="bg-emerald-500 text-white border-none px-1.5 py-0.5 text-[10px]">
+                <Sparkles className="mr-0.5 h-2.5 w-2.5" />
+                신규
+              </Badge>
+            )}
           </div>
-        )}
-        <div className="absolute top-3 left-3 flex gap-2">
-          {book.isPopular && (
-            <Badge className="bg-red-500 text-white border-none">
-              <TrendingUp className="mr-1 h-3 w-3" />
-              인기
-            </Badge>
-          )}
-          {book.isEnding && (
-            <Badge className="bg-amber-500 text-white border-none">
-              <Timer className="mr-1 h-3 w-3" />
-              마감임박
-            </Badge>
-          )}
-          {book.isNew && (
-            <Badge className="bg-emerald-500 text-white border-none">
-              <Sparkles className="mr-1 h-3 w-3" />
-              신규
-            </Badge>
-          )}
         </div>
-      </div>
 
-      <div className={cn("flex-1", isListView ? "" : "p-6")}>
-        <div className="space-y-4">
-          <div>
-            <h3 className="text-xl font-semibold line-clamp-2 mb-1">{book.title}</h3>
-            <p className="text-gray-600">
+        <div className="flex-1 min-w-0">
+          <div className="space-y-1">
+            <h3 className="font-medium text-base leading-tight line-clamp-2">{book.title}</h3>
+            <p className="text-sm text-gray-500 truncate">
               {book.author} · {book.publisher}
             </p>
           </div>
 
-          <div className="flex items-end justify-between">
-            <div>
-              <div className="text-sm text-gray-500 mb-1">현재가</div>
-              <div className="text-2xl font-bold text-brand-600">{book.currentPrice.toLocaleString()}원</div>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="text-sm text-gray-400 line-through">{book.originalPrice.toLocaleString()}원</span>
-                <Badge variant="secondary" className="bg-brand-50 text-brand-600">
-                  {discountPercentage}% 할인
-                </Badge>
-              </div>
+          <div className="mt-2">
+            <div className="flex items-baseline gap-2">
+              <span className="text-lg font-bold text-brand-600">{book.currentPrice.toLocaleString()}원</span>
+              <span className="text-sm text-gray-400 line-through">{book.originalPrice.toLocaleString()}원</span>
+              <Badge variant="secondary" className="bg-blue-50 text-blue-600 text-xs font-medium">
+                {discountPercentage}% 할인
+              </Badge>
             </div>
-            {book.buyNowPrice && (
-              <div className="text-right">
-                <div className="text-sm text-gray-500 mb-1">즉시 구매가</div>
-                <div className="text-lg font-semibold text-gray-900">{book.buyNowPrice.toLocaleString()}원</div>
-              </div>
-            )}
           </div>
 
-          <div className="flex items-center justify-between text-sm text-gray-500">
-            <div className="flex items-center gap-3">
-              <Badge variant="secondary" className="bg-gray-100">
+          <div className="flex items-center justify-between mt-3">
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary" className="bg-gray-100 text-xs">
                 {book.condition}급
               </Badge>
-              <div className="flex items-center">
+              <span className="text-xs text-gray-500 flex items-center">
                 <TrendingUp className="mr-1 h-3 w-3" />
                 입찰 {book.bids}회
-              </div>
+              </span>
             </div>
-            <div className="flex items-center text-brand-600 font-medium">
-              <Timer className="mr-1 h-4 w-4" />
+            <span className="text-xs text-brand-600 flex items-center font-medium">
+              <Timer className="mr-1 h-3 w-3" />
               {book.timeLeft}
-            </div>
-          </div>
-
-          {!isListView && book.tags.length > 0 && (
-            <div className="flex gap-2 flex-wrap pt-2">
-              {book.tags.map((tag) => (
-                <Badge key={tag} variant="secondary" className="bg-gray-100 text-gray-700">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-          )}
-
-          <div className={cn("flex gap-3", isListView ? "mt-6" : "mt-4")}>
-            <Button
-              className="flex-1 bg-brand-600 hover:bg-brand-700 text-white h-12"
-              size={isListView ? "default" : "lg"}
-            >
-              입찰하기
-              <ArrowRight className="ml-1 h-4 w-4" />
-            </Button>
-            {book.buyNowPrice && (
-              <Button
-                variant="outline"
-                className="flex-1 border-brand-200 text-brand-700 hover:bg-brand-50 h-12"
-                size={isListView ? "default" : "lg"}
-              >
-                즉시 구매
-              </Button>
-            )}
+            </span>
           </div>
         </div>
+      </div>
+
+      <div className="flex border-t">
+        <Button className="flex-1 h-11 rounded-none bg-brand-600 hover:bg-brand-700 text-sm font-medium">
+          입찰하기
+        </Button>
+        {book.buyNowPrice && (
+          <Button variant="ghost" className="flex-1 h-11 rounded-none hover:bg-gray-50 text-sm font-medium border-l">
+            즉시 구매
+          </Button>
+        )}
       </div>
     </Card>
   );
@@ -157,13 +109,7 @@ export function BookCard({ book, viewType = "grid" }: BookCardProps) {
 function BookPlaceholder() {
   return (
     <div className="flex flex-col items-center justify-center text-gray-300">
-      <svg
-        className="h-12 w-12"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg"
-      >
+      <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
