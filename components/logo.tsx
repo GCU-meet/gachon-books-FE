@@ -1,11 +1,12 @@
-import { BookOpenCheck } from "lucide-react"
+import { BookOpenCheck } from "lucide-react";
 
 export function Logo() {
   return (
-    <div className="flex items-center gap-2">
-      <BookOpenCheck className="w-8 h-8 text-brand-600" />
-      <span className="font-bold text-xl">가천북스</span>
+    <div className="flex items-center gap-1.5">
+      <BookOpenCheck className="w-5 h-5 text-brand-600" />
+      <span className="text-lg font-medium tracking-tight">
+        Gachon<span className="text-brand-600">Books</span>
+      </span>
     </div>
-  )
+  );
 }
-
