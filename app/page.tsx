@@ -2,13 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Bell, BookOpen, Menu, PlusCircle, HomeIcon, Search } from "lucide-react";
+import { Bell, BookOpen, Menu, PlusCircle, HomeIcon, Search, LayoutGrid, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Logo } from "@/components/logo";
-import { BookCard } from "@/components/book-card";
-import { BookCardMobile } from "@/components/book-card-mobile"; // Import BookCardMobile
+import { BookCardV35 } from "@/components/book-card-v35";
 import { isAuthenticated } from "@/utils/auth";
 import { cn } from "@/lib/utils";
 
@@ -19,33 +18,33 @@ const mockBooks = [
     id: 1,
     title: "컴퓨터 구조론",
     author: "김철수",
-    publisher: "출판사 A",
-    department: "컴퓨터공학과",
-    tags: ["컴퓨터", "구조론"],
+    publisher: "가천출판사",
     currentPrice: 15000,
     originalPrice: 28000,
+    buyNowPrice: 20000,
     timeLeft: "2시간 32분",
+    department: "컴퓨터공학과",
     condition: "상",
     bids: 12,
-    imageUrl: "/placeholder.svg?height=80&width=80",
+    tags: ["필수교재", "2024-1학기"],
+    imageUrl: "/placeholder.svg?height=200&width=150",
     isPopular: true,
     isEnding: true,
   },
   {
     id: 2,
     title: "경영학원론",
-    author: "이영희",
-    publisher: "출판사 B",
-    department: "경영학과",
-    tags: ["경영", "학원론"],
+    author: "박영희",
+    publisher: "경영출판사",
     currentPrice: 12000,
     originalPrice: 25000,
     timeLeft: "1일 4시간",
+    department: "경영학과",
     condition: "중",
     bids: 3,
-    imageUrl: "/placeholder.svg?height=80&width=80",
-    isPopular: true,
-    isEnding: true,
+    tags: ["필수교재"],
+    imageUrl: "/placeholder.svg?height=200&width=150",
+    isNew: true,
   },
 ];
 
@@ -53,7 +52,7 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState("전체");
   const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
-  const [viewType, setViewType] = useState("grid"); // Add viewType state
+  const [viewType, setViewType] = useState<"grid" | "list">("list");
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -66,13 +65,19 @@ export default function Home() {
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+      const isMobileView = window.innerWidth < 768;
+      setIsMobile(isMobileView);
+      setViewType(isMobileView ? "grid" : "list");
     };
 
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
+
+  const toggleViewType = () => {
+    setViewType((prev) => (prev === "grid" ? "list" : "grid"));
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -126,24 +131,22 @@ export default function Home() {
       </div>
 
       {/* Main Content */}
-      <main className="max-w-3xl mx-auto px-4 py-4">
-        <div
-          className={cn(
-            isMobile
-              ? "" // 모바일에서는 단일 컬럼
-              : viewType === "grid"
-              ? "grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
-              : "space-y-4"
-          )}
-        >
-          {mockBooks.map((book) =>
-            isMobile ? <BookCardMobile key={book.id} book={book} /> : <BookCard key={book.id} book={book} />
-          )}
+      <main className="max-w-4xl mx-auto px-4 py-4">
+        <div className="flex justify-end mb-4">
+          <Button variant="outline" size="sm" onClick={toggleViewType}>
+            {viewType === "grid" ? <List className="h-4 w-4" /> : <LayoutGrid className="h-4 w-4" />}
+            <span className="ml-2">{viewType === "grid" ? "리스트 보기" : "그리드 보기"}</span>
+          </Button>
+        </div>
+        <div className={cn(viewType === "grid" ? "grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "space-y-4")}>
+          {mockBooks.map((book) => (
+            <BookCardV35 key={book.id} book={book} viewType={viewType} />
+          ))}
         </div>
       </main>
 
       {/* Mobile Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t sm:hidden">
         <div className="flex items-center justify-around h-14">
           <Button variant="ghost" className="flex-1 h-full">
             <HomeIcon className="h-5 w-5" />

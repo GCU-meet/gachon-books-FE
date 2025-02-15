@@ -1,4 +1,4 @@
-import { Timer, TrendingUp, Sparkles } from "lucide-react";
+import { Timer, TrendingUp, Sparkles, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
@@ -23,31 +23,35 @@ interface BookCardProps {
     isEnding?: boolean;
     isNew?: boolean;
   };
-  viewType?: "grid" | "list";
+  viewType: "grid" | "list";
 }
 
-export function BookCard({ book, viewType = "grid" }: BookCardProps) {
+export function BookCardV35({ book, viewType }: BookCardProps) {
   const isListView = viewType === "list";
+  const discountPercentage = Math.round((1 - book.currentPrice / book.originalPrice) * 100);
 
   return (
     <Card
-      className={cn("group transition-all duration-200 hover:border-brand-500", isListView ? "flex items-center" : "")}
+      className={cn(
+        "group transition-all duration-200 hover:border-brand-500 hover:shadow-md",
+        isListView ? "flex items-center" : ""
+      )}
     >
-      <div className={cn("relative", isListView ? "w-24 h-24 shrink-0" : "aspect-[3/4]")}>
+      <div className={cn("relative", isListView ? "w-32 h-40 shrink-0" : "aspect-[3/4]")}>
         {book.imageUrl ? (
           <img
             src={book.imageUrl || "/placeholder.svg"}
             alt={book.title}
             className={cn(
               "object-cover rounded-lg transition-transform group-hover:scale-105",
-              isListView ? "w-24 h-24" : "w-full h-full"
+              isListView ? "w-32 h-40" : "w-full h-full"
             )}
           />
         ) : (
           <div
             className={cn(
               "flex items-center justify-center bg-muted rounded-lg",
-              isListView ? "w-24 h-24" : "w-full h-full"
+              isListView ? "w-32 h-40" : "w-full h-full"
             )}
           >
             <BookPlaceholder />
@@ -103,9 +107,7 @@ export function BookCard({ book, viewType = "grid" }: BookCardProps) {
             </div>
             <div className="text-right">
               <div className="text-sm text-muted-foreground line-through">{book.originalPrice.toLocaleString()}원</div>
-              <div className="text-sm text-brand-600 font-medium">
-                {Math.round((1 - book.currentPrice / book.originalPrice) * 100)}% 할인
-              </div>
+              <div className="text-sm text-brand-600 font-medium">{discountPercentage}% 할인</div>
             </div>
           </div>
           {book.buyNowPrice && (
@@ -144,7 +146,10 @@ export function BookCard({ book, viewType = "grid" }: BookCardProps) {
                 {book.bids}
               </div>
             </div>
-            <Button size="sm">입찰하기</Button>
+            <Button size="sm">
+              입찰하기
+              <ArrowRight className="ml-1 h-4 w-4" />
+            </Button>
           </div>
         )}
       </div>
