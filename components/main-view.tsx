@@ -16,60 +16,44 @@ interface MainViewProps {
 
 export function MainView({ categories, selectedCategory, setSelectedCategory, books, isMobile }: MainViewProps) {
   return (
-    <div className={cn("min-h-screen bg-white text-black")}>
+    <div className="min-h-screen bg-white text-black">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between h-14 px-4">
-            {isMobile ? (
-              <span className="text-lg font-medium">위례동</span>
-            ) : (
-              <>
-                <Button variant="ghost" size="icon" className="mr-2 hover:bg-gray-50">
-                  <Menu className="h-5 w-5" />
-                </Button>
-                <Logo />
-              </>
-            )}
+          <div className="flex items-center h-14 px-4">
+            <Button variant="ghost" size="icon" className="hover:bg-gray-50">
+              <Menu className="h-5 w-5" />
+            </Button>
+            <div className="flex-1 flex justify-center">
+              <Logo />
+            </div>
             <div className="flex items-center gap-2">
-              {!isMobile && (
-                <Button variant="ghost" size="icon" className="relative hover:bg-gray-50">
-                  <Bell className="h-5 w-5" />
-                  <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full" />
-                </Button>
-              )}
-              {isMobile ? (
-                <>
-                  <Search className="h-6 w-6" />
-                  <Bell className="h-6 w-6" />
-                  <Menu className="h-6 w-6" />
-                </>
-              ) : (
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src="/placeholder.svg" />
-                  <AvatarFallback>UN</AvatarFallback>
-                </Avatar>
-              )}
+              <Button variant="ghost" size="icon" className="relative hover:bg-gray-50">
+                <Bell className="h-5 w-5" />
+                <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full" />
+              </Button>
+              <Avatar className="h-8 w-8">
+                <AvatarImage src="/placeholder.svg" />
+                <AvatarFallback>UN</AvatarFallback>
+              </Avatar>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Search Bar (Desktop only) */}
-      {!isMobile && (
-        <div className="border-b border-gray-200">
-          <div className="max-w-3xl mx-auto px-4 py-3">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                type="search"
-                placeholder="책 제목, 저자, 학과 등으로 검색"
-                className="pl-10 bg-gray-50 border-gray-200"
-              />
-            </div>
+      {/* Search Bar */}
+      <div className="border-b border-gray-200">
+        <div className="max-w-3xl mx-auto px-4 py-3">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input
+              type="search"
+              placeholder="책 제목, 저자, 학과 등으로 검색"
+              className="pl-10 bg-gray-50 border-gray-200"
+            />
           </div>
         </div>
-      )}
+      </div>
 
       {/* Categories */}
       <div className="border-b border-gray-200 overflow-x-auto">

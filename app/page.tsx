@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { isAuthenticated } from "@/utils/auth"
-import { useScreenSize } from "@/hooks/useScreenSize"
 import { MainView } from "@/components/main-view"
 import { categories, mockBooks } from "@/utils/mockData"
+import { useScreenSize } from "@/hooks/use-screen-size"
 
 
 export default function Home() {
